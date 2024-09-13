@@ -18,11 +18,14 @@ public final class Constants {
 
         static final double length = 144;
         static final double width = 144;
+        static final double tileSize = 24;
+        static final double tileTeeth = .75;
+        static final double distanceBetwwenSpikeMarks = 10;
     }
 
 public static final class SampleConstants{
-        static final double length = 3.4;
-        static final double side = 1;
+        static final double length = 3.5;
+        static final double side = 1.5;
 }
 
 

@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode;
+package com.example.meepmeeptesting;
 
 
-import com.acmerobotics.roadrunner.Pose2d;
-
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 public final class FieldConstantsRed {
 
@@ -10,8 +9,6 @@ public final class FieldConstantsRed {
      *
      *
      * */
-
-
     public static final class FieldConstants {
 
         static final double length = 144;
@@ -26,16 +23,18 @@ public final class FieldConstantsRed {
         static final double side = 1.5;
     }
     public static final double basketSideStartAngle = Math.toRadians(90);
-    public static final double observationSideStartAngle = Math.toRadians(90);
+    public static final double specimenSideStartAngle = Math.toRadians(90);
+
+    public static final double observationSideStartAngle = Math.toRadians(0);
 
     public static final double observationZoneCenterPose = Math.toRadians(90);
     public static final double spikeMarkYCenter = -24 - FieldConstants.tileTeeth - SampleConstants.length / 2;
 
+    public static Pose2d specimenStartPose = new Pose2d(-10, -55, basketSideStartAngle);
+    public static Pose2d basketSideStartPose = new Pose2d(-30, -55, basketSideStartAngle);
+    public static Pose2d observationSideStartPose = new Pose2d(-55, 60, observationSideStartAngle);
 
-    public static Pose2d basketSideStartPose = new Pose2d(55, 60, basketSideStartAngle);
-    public static Pose2d observationSideStartPose = new Pose2d(55, 60, observationSideStartAngle);
-
-    public static Pose2d basketPose = new Pose2d(-64, -64, Math.toRadians(-45));
+    public static Pose2d basketPose = new Pose2d(-55, -55, Math.toRadians(-135));
 
 
     public static Pose2d parkPose = new Pose2d(48, -50, Math.toRadians(45));
