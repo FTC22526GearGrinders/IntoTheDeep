@@ -25,7 +25,6 @@ public class TeleopOpMode extends CommandOpMode {
     GamepadEx coDriver;
 
 
-
     @Override
     public void initialize() {
 
@@ -38,7 +37,7 @@ public class TeleopOpMode extends CommandOpMode {
         limelight = new LimelightSubsystem(this);
         //DEFAULT COMMANDS
 
-        drive.setDefaultCommand(new JogDrive(this.drive, driver, false));
+        drive.setDefaultCommand(new JogDrive(this.drive, driver, false, this));
 
     }
 
@@ -64,13 +63,16 @@ public class TeleopOpMode extends CommandOpMode {
     void checkTriggers() {
 
         if (driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) == 1) {
-            new JogDrive(drive, driver, true).execute();
+            new JogDrive(drive, driver, true, this).execute();
         }
 
         if (driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) == 1) {
             drive.resetEncoders();
         }
-        telemetry.update();
+        if (driver.getButton(GamepadKeys.Button.RIGHT_BUMPER)) {
+            drive.resetIMUYaw();
+        }
+
     }
 
 

@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.teamcode.Constants.DriveConstants.encoderTicksToInches;
+
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Action;
@@ -43,11 +47,14 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Localizer;
+import org.firstinspires.ftc.teamcode.commands.drive.Utils.ActiveMotionValues;
 import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumEncodersMessage;
@@ -61,6 +68,8 @@ import java.util.List;
 public final class MecanumDriveSubsystem extends SubsystemBase {
     public boolean fieldCentric;
     public int slowMode;
+    public Telemetry telemetry;
+    public boolean show = true;
 
     public static class Params {
         // IMU orientation
@@ -162,10 +171,11 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
 
             //TODO Step 4.2 Run MecanumDirectionDebugger Tuning OpMode to set motor direction correctly
             //Uncomment the lines for which the motorDirection need to be reversed to ensure all motors run forward in test
-            //leftFront.setDirection(DcMotorEx.Direction.REVERSE);
-            //leftBack.setDirection(DcMotorEx.Direction.REVERSE);
-            rightBack.setDirection(DcMotorEx.Direction.REVERSE);
-            rightFront.setDirection(DcMotorEx.Direction.REVERSE);
+            // TODO: reverse motor directions if needed
+            leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+            leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+            rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
             //TODO End Step 4.2
 
             lastLeftFrontPos = leftFront.getPositionAndVelocity().position;
@@ -224,7 +234,8 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
 
     public MecanumDriveSubsystem(CommandOpMode opMode, Pose2d pose) {
         this.pose = pose;
-
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        telemetry = new MultipleTelemetry(opMode.telemetry, dashboard.getTelemetry());
         LynxFirmware.throwIfModulesAreOutdated(opMode.hardwareMap);
 
         for (LynxModule module : opMode.hardwareMap.getAll(LynxModule.class)) {
@@ -233,10 +244,10 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
 
         //TODO Step 1 Drive Classes : get basic hardware configured. Update motor names to what is used in robot configuration
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = opMode.hardwareMap.get(DcMotorEx.class, "leftFront");
-        leftBack = opMode.hardwareMap.get(DcMotorEx.class, "leftBack");
-        rightBack = opMode.hardwareMap.get(DcMotorEx.class, "rightBack");
-        rightFront = opMode.hardwareMap.get(DcMotorEx.class, "rightFront");
+        leftFront = opMode.hardwareMap.get(DcMotorEx.class, "frontleft");
+        leftBack = opMode.hardwareMap.get(DcMotorEx.class, "backleft");
+        rightBack = opMode.hardwareMap.get(DcMotorEx.class, "backright");
+        rightFront = opMode.hardwareMap.get(DcMotorEx.class, "frontright");
         //TODO End Step 1
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -246,10 +257,11 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
 
         //TODO Step 4.1 Run MecanumDirectionDebugger Tuning OpMode to set motor direction correctly
         //Uncomment the lines for which the motorDirection need to be reversed to ensure all motors run forward in test
-        //leftFront.setDirection(DcMotorEx.Direction.REVERSE);
-        //leftBack.setDirection(DcMotorEx.Direction.REVERSE);
-        rightFront.setDirection(DcMotorEx.Direction.REVERSE);
-        rightBack.setDirection(DcMotorEx.Direction.REVERSE);
+        // TODO: reverse motor directions if needed
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
         //TODO Make the same update in DriveLocalizer() function. Search for Step 4.2
         //TODO End Step 4.1
 
@@ -276,13 +288,21 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
     }
 
     public void jog(double y, double x, double rx) {
-        double jogPower = y;
-
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+//        telemetry.addData("fwd",y);
+//        telemetry.update();
         leftFront.setPower((y + x + rx) / denominator);
         rightFront.setPower((y - x - rx) / denominator);
         leftBack.setPower((y - x + rx) / denominator);
         rightBack.setPower((y + x - rx) / denominator);
+
+    }
+
+    public void periodic() {
+
+        if (show) {
+            showTelemetry();
+        }
 
     }
 
@@ -568,5 +588,32 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
                 defaultTurnConstraints,
                 defaultVelConstraint, defaultAccelConstraint
         );
+    }
+
+    public void showTelemetry() {
+
+        // telemetry.addData("Current Pose", getPoseEstimate().toString());
+
+        telemetry.addData("FrontLeftPosn", encoderTicksToInches(leftFront.getCurrentPosition()));
+        telemetry.addData("FrontLeftTicks", leftFront.getCurrentPosition());
+
+        telemetry.addData("FrontRightPosn", encoderTicksToInches(rightFront.getCurrentPosition()));
+        telemetry.addData("BackLeftPosn", encoderTicksToInches(leftBack.getCurrentPosition()));
+        telemetry.addData("BackRightPosn", encoderTicksToInches(rightBack.getCurrentPosition()));
+        telemetry.addData("FrontLeftVel", leftFront.getVelocity());
+
+        telemetry.addData("Gyro Heading", getYaw());
+//        telemetry.addData("BatteryVolts", getBatteryVolts());
+        telemetry.addData("FieldCentric", fieldCentric);
+
+
+        telemetry.addData("RedAllience", ActiveMotionValues.getRedAlliance());
+
+        telemetry.update();
+
+    }
+
+    private double getYaw() {
+        return imu.getRobotYawPitchRollAngles().getYaw();
     }
 }

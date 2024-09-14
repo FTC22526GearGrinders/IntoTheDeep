@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.commands.drive;
 
 import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.teamcode.commands.drive.Utils.ActiveMotionValues;
@@ -13,13 +14,15 @@ public class JogDrive extends CommandBase {
     private final GamepadEx gamepad;
 
     private final boolean slow;
-
+    CommandOpMode myOpmode;
     private double startRadians;
 
-    public JogDrive(MecanumDriveSubsystem drive, GamepadEx gamepad, boolean slow) {
+
+    public JogDrive(MecanumDriveSubsystem drive, GamepadEx gamepad, boolean slow, CommandOpMode opmode) {
         this.drive = drive;
         this.gamepad = gamepad;
         this.slow = slow;
+        myOpmode = opmode;
         addRequirements(this.drive);
 
     }
@@ -40,6 +43,9 @@ public class JogDrive extends CommandBase {
             double x = this.gamepad.getLeftX();
             double rx = this.gamepad.getRightX();
 
+//            myOpmode.telemetry.addData("X", x);
+//            myOpmode.telemetry.update();
+
             if (slow) {
                 y *= .2;
                 x *= .2;
@@ -51,7 +57,7 @@ public class JogDrive extends CommandBase {
         }
 
         if (drive.fieldCentric) {
-           /* Invert stick Y axis */
+            /* Invert stick Y axis */
             double forward = -this.gamepad.getLeftY();
             double strafe = this.gamepad.getLeftX();
             double rcw = this.gamepad.getRightX();
@@ -62,12 +68,11 @@ public class JogDrive extends CommandBase {
             }
 
 
-
-            if(!ActiveMotionValues.getRedAlliance()) {//
+            if (!ActiveMotionValues.getRedAlliance()) {//
 
                 forward = -this.gamepad.getLeftY();
                 strafe = this.gamepad.getLeftX(); /* Invert stick Y axis */
-                 rcw = this.gamepad.getRightX();
+                rcw = this.gamepad.getRightX();
             }
 
 

@@ -13,10 +13,10 @@ public class AlignToNote extends CommandBase {
     public static double kD = .001;
     public static double kI = .001;
     private final MecanumDriveSubsystem drive;
-    private LimelightSubsystem limelight;
     private final PIDController alignpid = new PIDController(kP, kI, kD);
     private final GamepadEx gamepad;
     private final int pipeline;
+    private LimelightSubsystem limelight;
 
 
     public AlignToNote(MecanumDriveSubsystem drive, LimelightSubsystem limelight, GamepadEx gamepad, int pipeline) {
@@ -47,6 +47,5 @@ public class AlignToNote extends CommandBase {
     public boolean isFinished() {
         return false;
     }
-
 
 }
