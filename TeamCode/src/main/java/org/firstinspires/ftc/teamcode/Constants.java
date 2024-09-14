@@ -97,7 +97,7 @@ public static final class SampleConstants{
 
 
         public static double encoderTicksToInches(double ticks) {
-            return WHEEL_DIAMETER_INCH * Math.PI * GEARBOX_RATIO * ticks / ENCODER_COUNTS_PER_MOTOR_REV;
+            return 1.05 * WHEEL_DIAMETER_INCH * Math.PI * GEARBOX_RATIO * ticks / ENCODER_COUNTS_PER_MOTOR_REV;
 
         }
 
