@@ -27,7 +27,7 @@ public class JogDrive extends CommandBase {
 
     @Override
     public void initialize() {
-        double gyro_radians = startRadians - drive.lazyImu.get().getRobotYawPitchRollAngles().getYaw();
+        double gyro_radians = startRadians - drive.imu.getRobotYawPitchRollAngles().getYaw();
     }
 
 

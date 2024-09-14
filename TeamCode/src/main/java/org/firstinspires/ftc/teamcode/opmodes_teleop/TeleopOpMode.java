@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes_teleop;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -8,22 +9,22 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.drive.JogDrive;
+import org.firstinspires.ftc.teamcode.subsystems.LimelightSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 
 
 @TeleOp
 public class TeleopOpMode extends CommandOpMode {
 
+    public static int CTR;
     protected MecanumDriveSubsystem drive;
-
-
+    protected LimelightSubsystem limelight;
+    FtcDashboard dashboard;
     Pose2d poseEstimate;
     GamepadEx driver;
     GamepadEx coDriver;
 
-    int ctr;
 
-    private int teleSwitch;
 
     @Override
     public void initialize() {
@@ -32,9 +33,9 @@ public class TeleopOpMode extends CommandOpMode {
 
         coDriver = new GamepadEx(gamepad2);
 
-        drive = new MecanumDriveSubsystem(hardwareMap, new Pose2d(0, 0, 0));
+        drive = new MecanumDriveSubsystem(this, new Pose2d(0, 0, 0));
 
-
+        limelight = new LimelightSubsystem(this);
         //DEFAULT COMMANDS
 
         drive.setDefaultCommand(new JogDrive(this.drive, driver, false));
@@ -54,8 +55,6 @@ public class TeleopOpMode extends CommandOpMode {
 
             checkTriggers();
 
-            showTelemetry();
-
 
         }
         reset();
@@ -71,38 +70,9 @@ public class TeleopOpMode extends CommandOpMode {
         if (driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) == 1) {
             drive.resetEncoders();
         }
-            telemetry.update();
-        }
-
-
-        public void showTelemetry () {
-
-            //  poseEstimate = drive.drive.getPoseEstimate();
-            if (teleSwitch > 4) teleSwitch = 0;
-            if (teleSwitch < 0) teleSwitch = 4;
-
-
-            switch (teleSwitch) {
-
-                case 0:
-                    drive.showTelemetry(telemetry);
-                    break;
-                case 1:
-                    drive.showTelemetry(telemetry);
-                    break;
-                case 2:
-
-                    break;
-                case 3:
-
-                    break;
-                case 4:
-
-                    break;
-                default:
-                    break;
-
-            }
-        }
+        telemetry.update();
     }
+
+
+}
 
