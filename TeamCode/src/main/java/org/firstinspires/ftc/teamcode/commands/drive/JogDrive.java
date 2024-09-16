@@ -30,7 +30,7 @@ public class JogDrive extends CommandBase {
 
     @Override
     public void initialize() {
-        double gyro_radians = startRadians - drive.imu.getRobotYawPitchRollAngles().getYaw();
+        double gyro_radians = startRadians - drive.getYaw();
     }
 
 
@@ -68,7 +68,7 @@ public class JogDrive extends CommandBase {
             }
 
 
-            if (!ActiveMotionValues.getRedAlliance()) {//
+            if (!ActiveMotionValues.getRedAlliance()) {
 
                 forward = -this.gamepad.getLeftY();
                 strafe = this.gamepad.getLeftX(); /* Invert stick Y axis */

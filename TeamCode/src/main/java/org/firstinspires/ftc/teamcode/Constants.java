@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
@@ -11,6 +12,7 @@ public final class Constants {
         public static final double length = 17.75;
         static final double height = 13;
         static final double width = 17.75;
+        static final Vector2d manipulatorToRobotCenter = new Vector2d(12, 0);
 
     }
 
@@ -88,7 +90,7 @@ public static final class SampleConstants{
         public static final double BATTERY_VOLTS = 12;
 
         //public static final double kV = BATTERY_VOLTS / MAX_IPM;//12/60 = .2 MAX THEORETICAL VALUE
-        public static final double ENCODER_COUNTS_PER_MOTOR_REV = 751.8;
+
 
         public static RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR =
                 RevHubOrientationOnRobot.LogoFacingDirection.UP;
@@ -97,7 +99,7 @@ public static final class SampleConstants{
 
 
         public static double encoderTicksToInches(double ticks) {
-            return 1.05 * WHEEL_DIAMETER_INCH * Math.PI * GEARBOX_RATIO * ticks / ENCODER_COUNTS_PER_MOTOR_REV;
+            return 1.05 * WHEEL_DIAMETER_INCH * Math.PI * GEARBOX_RATIO * ticks / ENCODER_COUNTS_PER_WHEEL_REV;
 
         }
 

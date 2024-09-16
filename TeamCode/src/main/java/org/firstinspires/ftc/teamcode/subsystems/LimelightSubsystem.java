@@ -13,13 +13,19 @@ public class LimelightSubsystem extends SubsystemBase {
 
     private final Limelight3A limelight;
     public Telemetry telemetry;
-    public boolean show;
+    public boolean show = true;
+
+    public int redPipeline = 0;
+    public int bluePipeline = 1;
+    public int yellowPipeline = 2;
+    public int test;
 
     public LimelightSubsystem(CommandOpMode opMode) {
         limelight = opMode.hardwareMap.get(Limelight3A.class, "limelight");
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(opMode.telemetry, dashboard.getTelemetry());
         telemetry.setMsTransmissionInterval(11);
+        limelight.pipelineSwitch(0);
         limelight.start();
     }
     /*
@@ -33,7 +39,7 @@ public class LimelightSubsystem extends SubsystemBase {
      *
      * */
 
-
+    @Override
     public void periodic() {
 
         if (show) {
@@ -93,12 +99,13 @@ public class LimelightSubsystem extends SubsystemBase {
 
     public void showTelemetry() {
         telemetry.addData("ResultValid", getLatestResult().isValid());
+        telemetry.addData("DDD", test);
         telemetry.addData("Connected", limelight.isConnected());
         telemetry.addData("Running", limelight.isRunning());
-        // telemetry.addData("Status", limelight.getStatus());
+//        // telemetry.addData("Status", limelight.getStatus());
         telemetry.addData("UpdateTime", limelight.getTimeSinceLastUpdate());
-
-
+//
+//
         telemetry.addData("Tx", getTX());
         telemetry.addData("Ty", getTY());
 
