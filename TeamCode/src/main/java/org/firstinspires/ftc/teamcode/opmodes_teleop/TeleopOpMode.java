@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.opmodes_teleop;
 
 
@@ -5,6 +6,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.button.Button;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -13,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.drive.AlignToNote;
 import org.firstinspires.ftc.teamcode.commands.drive.JogDrive;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeRollerSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LimelightSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 
@@ -22,12 +25,16 @@ public class TeleopOpMode extends CommandOpMode {
 
     protected MecanumDriveSubsystem drive;
     protected LimelightSubsystem limelight;
+    protected IntakeRollerSubsystem intakeRoller;
     FtcDashboard dashboard;
     GamepadEx driver;
     GamepadEx coDriver;
     private AlignToNote m_alighToNote;
 
     private Button alignbutton;
+
+    private Button jogRollerIn;
+    private Button jogRollerOut;
 
     @Override
     public void initialize() {
@@ -40,14 +47,21 @@ public class TeleopOpMode extends CommandOpMode {
 
         limelight = new LimelightSubsystem(this);
 
-        m_alighToNote = new AlignToNote(drive, limelight, driver, limelight.redPipeline, this);
-        //DEFAULT COMMANDS
+        intakeRoller = new IntakeRollerSubsystem(this);
 
-        alignbutton = (new GamepadButton(driver, GamepadKeys.Button.LEFT_BUMPER));
+        m_alighToNote = new AlignToNote(drive, limelight, driver, true, this);
+
+        alignbutton = new GamepadButton(driver, GamepadKeys.Button.LEFT_BUMPER);
+
+        jogRollerIn = new GamepadButton(driver, GamepadKeys.Button.X);
+
+        jogRollerOut = new GamepadButton(driver, GamepadKeys.Button.Y);
+
+
+        register(drive, limelight);
 
         drive.setDefaultCommand(new JogDrive(this.drive, driver, false, this));
 
-        register(drive, limelight);
 
     }
 
@@ -72,6 +86,11 @@ public class TeleopOpMode extends CommandOpMode {
             drive.resetEncoders();
         }
         alignbutton.whenHeld(m_alighToNote);
+
+        jogRollerIn.whenPressed(new InstantCommand(() -> intakeRoller.runRoller(1)))
+                .whenReleased(new InstantCommand(() -> intakeRoller.stopRoller()));
+        jogRollerOut.whenPressed(new InstantCommand(() -> intakeRoller.runRoller(-1)))
+                .whenReleased(new InstantCommand(() -> intakeRoller.stopRoller()));
 
 
     }

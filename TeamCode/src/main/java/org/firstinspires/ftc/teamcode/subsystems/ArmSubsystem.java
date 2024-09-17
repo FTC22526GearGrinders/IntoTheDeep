@@ -17,30 +17,21 @@ import org.firstinspires.ftc.teamcode.commands.Arm.PositionHoldArm;
 public class ArmSubsystem extends SubsystemBase {
 
 
+    private final CommandOpMode myOpMode;
+    private final FtcDashboard dashboard;
     public Motor armMotor;
     public Motor.Encoder armEncoder;
-
     public CRServo intakeRoller;
-
-    private final CommandOpMode myOpMode;
     public double targetInches;
-
     public int armPositionIndex;
-
     public double power;
-
     public ProfiledPIDController profController = null;
     public int holdCtr;
-
-    private int armDeliverLevel;
-
-    private FtcDashboard dashboard;
-
-    private Telemetry telemetry;
-
+    public boolean show;
     ElapsedTime et;
+    private int armDeliverLevel;
+    private Telemetry telemetry;
     private double scanTime;
-
 
     public ArmSubsystem(CommandOpMode opMode) {
 
@@ -52,7 +43,9 @@ public class ArmSubsystem extends SubsystemBase {
 
         armMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-        //intakeRoller- new CRServo(myOpMode.hardwareMap.get(com.qualcomm.robotcore.hardware.CRServo.class, id);
+        intakeRoller = opMode.hardwareMap.get(CRServo.class, "intakeRoller");
+
+        intakeRoller.setInverted((false));
 
         armEncoder = armMotor.encoder;
 
@@ -88,20 +81,19 @@ public class ArmSubsystem extends SubsystemBase {
 
     public void periodic() {
 
+        if (show) {
+            showTelemetry();
+        }
         if (holdCtr >= 100) {
             scanTime = et.milliseconds() / holdCtr;
             holdCtr = 0;
             et.reset();
-
-
         }
-
     }
 
     public void setTargetInches(double inches) {
         targetInches = inches;
         profController.setGoal(targetInches);
-        //  profController.reset(inches);
     }
 
     public void setArmDeliverLevel(int n) {
@@ -141,12 +133,12 @@ public class ArmSubsystem extends SubsystemBase {
         return profController.getGoal().position;
     }
 
-    public void setPositionKp(double kp) {
-        profController.setP(kp);
-    }
-
     public double getPositionKp() {
         return profController.getP();
+    }
+
+    public void setPositionKp(double kp) {
+        profController.setP(kp);
     }
 
     public double getPositionKi() {
@@ -169,18 +161,16 @@ public class ArmSubsystem extends SubsystemBase {
         profController.setConstraints(new TrapezoidProfile.Constraints(vel, acc));
     }
 
+    public double getPower() {
+        return armMotor.get();
+    }
 
     public void setPower(double power) {
         armMotor.set(power);
     }
 
-    public double getPower() {
-        return armMotor.get();
-    }
-
-
-    public void showTelemetry(Telemetry telemetry) {
-
+    public void showTelemetry() {
+        telemetry.addData("Arm", show);
 //        telemetry.addData("EncCtsPerInch", Constants.ArmConstants.ENCODER_COUNTS_PER_INCH);
         telemetry.addData("MaxIPS", Constants.ArmConstants.MAX_INCHES_PER_SECOND);
         telemetry.addData("HoldRng", holdCtr);
@@ -189,8 +179,6 @@ public class ArmSubsystem extends SubsystemBase {
         telemetry.addData("ArmInches", getPositionInches());
         telemetry.addData("GoalInches", getGoalPosition());
         telemetry.addData("TargetInches", targetInches);
-        telemetry.addData("ArmInches", getPositionInches());
-        telemetry.addData("ArmVelocity", armEncoder.getRawVelocity());
         telemetry.addData("ArmPower", armMotor.get());
 
 

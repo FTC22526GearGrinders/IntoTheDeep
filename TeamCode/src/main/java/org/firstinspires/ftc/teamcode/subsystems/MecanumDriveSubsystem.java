@@ -95,7 +95,9 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
     public Telemetry telemetry;
     public boolean fieldCentric;
     public int slowMode;
-    public boolean show = false;
+    public boolean show1 = false;
+    public boolean show2 = false;
+    public double tempy;
 
     public MecanumDriveSubsystem(CommandOpMode opMode, Pose2d pose) {
         this.pose = pose;
@@ -139,6 +141,12 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
 
+    public static double round2dp(double number, int dp) {
+        double temp = Math.pow(10, dp);
+        double temp1 = Math.round(number * temp);
+        return temp1 / temp;
+    }
+
     public void setDrivePowers(PoseVelocity2d powers) {
         MecanumKinematics.WheelVelocities<Time> wheelVels = new MecanumKinematics(1).inverse(
                 PoseVelocity2dDual.constant(powers, 1));
@@ -156,7 +164,7 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
 
     public void jog(double y, double x, double rx) {
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-//        telemetry.addData("fwd",y);
+        telemetry.addData("fwd", y);
 //        telemetry.update();
         leftFront.setPower((y + x + rx) / denominator);
         rightFront.setPower((y - x - rx) / denominator);
@@ -167,8 +175,12 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (show) {
-            showTelemetry();
+        if (show1) {
+            showTelemetry1();
+        }
+
+        if (show2) {
+            showTelemetry2();
         }
     }
 
@@ -183,7 +195,6 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
-
 
     public PoseVelocity2d updatePoseEstimate() {
         Twist2dDual<Time> twist = localizer.update();
@@ -230,6 +241,61 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
                 defaultTurnConstraints,
                 defaultVelConstraint, defaultAccelConstraint
         );
+    }
+
+    public int getAverageTicks() {
+        return (leftFront.getCurrentPosition() + rightFront.getCurrentPosition() + leftBack.getCurrentPosition() + rightBack.getCurrentPosition()) / 4;
+    }
+
+    public double getAveragePosition() {
+        return encoderTicksToInches(getAverageTicks());
+    }
+
+    public double getYaw() {
+        return lazyImu.get().getRobotYawPitchRollAngles().getYaw();
+    }
+
+    public void resetIMUYaw() {
+        lazyImu.get().resetYaw();
+    }
+
+    public void showTelemetry1() {
+
+        // telemetry.addData("Current Pose", getPoseEstimate().toString());
+
+        telemetry.addData("MecanumDrive 1", show1);
+
+        telemetry.addData("TMPY", tempy);
+        telemetry.addData("FrontLeftTicks", leftFront.getCurrentPosition());
+        telemetry.addData("FrontRightTicks", rightFront.getCurrentPosition());
+        telemetry.addData("BackLeftTicks", leftBack.getCurrentPosition());
+        telemetry.addData("BackRightTicks", rightBack.getCurrentPosition());
+        telemetry.addData("AverageTicks", getAverageTicks());
+        telemetry.update();
+    }
+
+    public void showTelemetry2() {
+        telemetry.addData("MecanumDrive 2", show2);
+        telemetry.addData("FWD", tempy);
+        telemetry.addData("FrontLeftPosn", round2dp(encoderTicksToInches(leftFront.getCurrentPosition()), 2));
+        telemetry.addData("FrontRightPosn", round2dp(encoderTicksToInches(rightFront.getCurrentPosition()), 2));
+        telemetry.addData("BackLeftPosn", round2dp(encoderTicksToInches(leftBack.getCurrentPosition()), 2));
+        telemetry.addData("BackRightPosn", round2dp(encoderTicksToInches(rightBack.getCurrentPosition()), 2));
+        telemetry.addData("Robot X Posn", pose.position.x);
+        telemetry.addData("Robot Y Posn", pose.position.y);
+        telemetry.addData("Robot Heading", pose.position.angleCast());
+
+        telemetry.addData("FrontLeftVel", leftFront.getVelocity());
+
+        telemetry.addData("Gyro Heading", getYaw());
+//        telemetry.addData("BatteryVolts", getBatteryVolts());
+        telemetry.addData("FieldCentric", fieldCentric);
+
+
+        telemetry.addData("RedAllience", ActiveMotionValues.getRedAlliance());
+
+        telemetry.update();
+
     }
 
     public static class Params {
@@ -535,61 +601,6 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
             c.setStroke("#7C4DFF7A");
             c.fillCircle(turn.beginPose.position.x, turn.beginPose.position.y, 2);
         }
-    }
-
-    public int getAverageTicks() {
-        return (leftFront.getCurrentPosition() + rightFront.getCurrentPosition() + leftBack.getCurrentPosition() + rightBack.getCurrentPosition()) / 4;
-    }
-
-    public double getAveragePosition() {
-        return encoderTicksToInches(getAverageTicks());
-    }
-
-    public double getYaw() {
-        return lazyImu.get().getRobotYawPitchRollAngles().getYaw();
-    }
-
-    public void resetIMUYaw() {
-        lazyImu.get().resetYaw();
-    }
-    
-    public void showTelemetry() {
-
-        // telemetry.addData("Current Pose", getPoseEstimate().toString());
-
-
-        telemetry.addData("FrontLeftTicks", leftFront.getCurrentPosition());
-        telemetry.addData("FrontRightTicks", rightFront.getCurrentPosition());
-        telemetry.addData("BackLeftTicks", leftBack.getCurrentPosition());
-        telemetry.addData("BackRightTicks", rightBack.getCurrentPosition());
-        telemetry.addData("AverageTicks", getAverageTicks());
-
-
-        telemetry.addData("FrontLeftPosn", round2dp(encoderTicksToInches(leftFront.getCurrentPosition()), 2));
-        telemetry.addData("FrontRightPosn", round2dp(encoderTicksToInches(rightFront.getCurrentPosition()), 2));
-        telemetry.addData("BackLeftPosn", round2dp(encoderTicksToInches(leftBack.getCurrentPosition()), 2));
-        telemetry.addData("BackRightPosn", round2dp(encoderTicksToInches(rightBack.getCurrentPosition()), 2));
-        telemetry.addData("Robot X Posn", pose.position.x);
-        telemetry.addData("Robot Y Posn", pose.position.y);
-        telemetry.addData("Robot Heading", pose.position.angleCast());
-
-        telemetry.addData("FrontLeftVel", leftFront.getVelocity());
-
-        telemetry.addData("Gyro Heading", getYaw());
-//        telemetry.addData("BatteryVolts", getBatteryVolts());
-        telemetry.addData("FieldCentric", fieldCentric);
-
-
-        telemetry.addData("RedAllience", ActiveMotionValues.getRedAlliance());
-
-        telemetry.update();
-
-    }
-
-    public static double round2dp(double number, int dp) {
-        double temp = Math.pow(10, dp);
-        double temp1 = Math.round(number * temp);
-        return temp1 / temp;
     }
 
 }

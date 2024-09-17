@@ -23,6 +23,7 @@ public class JogDrive extends CommandBase {
         this.gamepad = gamepad;
         this.slow = slow;
         myOpmode = opmode;
+
         addRequirements(this.drive);
 
     }
@@ -30,13 +31,14 @@ public class JogDrive extends CommandBase {
 
     @Override
     public void initialize() {
+        drive.tempy = 911;
         double gyro_radians = startRadians - drive.getYaw();
     }
 
 
     @Override
     public void execute() {
-
+        drive.tempy++;
         if (!drive.fieldCentric) {
 
             double y = this.gamepad.getLeftY();

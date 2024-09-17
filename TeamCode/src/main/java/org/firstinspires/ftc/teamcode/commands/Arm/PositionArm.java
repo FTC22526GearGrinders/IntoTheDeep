@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.commands.Arm;
 import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.Subsystems.ArmSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 
 
 public class PositionArm extends CommandBase {

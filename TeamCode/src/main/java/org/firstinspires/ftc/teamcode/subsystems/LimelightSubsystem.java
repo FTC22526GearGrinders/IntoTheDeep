@@ -13,7 +13,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
     private final Limelight3A limelight;
     public Telemetry telemetry;
-    public boolean show = true;
+    public boolean show;
 
     public int redPipeline = 0;
     public int bluePipeline = 1;
@@ -98,6 +98,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
 
     public void showTelemetry() {
+        telemetry.addData("Limelight", show);
         telemetry.addData("ResultValid", getLatestResult().isValid());
         telemetry.addData("DDD", test);
         telemetry.addData("Connected", limelight.isConnected());

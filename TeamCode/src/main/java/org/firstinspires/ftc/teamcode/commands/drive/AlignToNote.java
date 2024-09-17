@@ -18,26 +18,35 @@ public class AlignToNote extends CommandBase {
     private final MecanumDriveSubsystem drive;
     private final PIDController alignpid = new PIDController(kP, kI, kD);
     private final GamepadEx gamepad;
-    private final int pipeline;
+    private final boolean yellow;
     private final LimelightSubsystem limelight;
     private final CommandOpMode myOpmode;
+    boolean redAlliance;
 
-
-    public AlignToNote(MecanumDriveSubsystem drive, LimelightSubsystem limelight, GamepadEx gamepad, int pipeline, CommandOpMode opMode) {
+    public AlignToNote(MecanumDriveSubsystem drive, LimelightSubsystem limelight, GamepadEx gamepad, boolean yellow, CommandOpMode opMode) {
         this.drive = drive;
         this.limelight = limelight;
         this.gamepad = gamepad;
-        this.pipeline = pipeline;
+        this.yellow = yellow;
         myOpmode = opMode;
         addRequirements(this.drive);
     }
 
+    public static double round2dp(double number, int dp) {
+        double temp = Math.pow(10, dp);
+        double temp1 = Math.round(number * temp);
+        return temp1 / temp;
+    }
+
     @Override
     public void initialize() {
-        limelight.setPipeline(pipeline);
-        limelight.test = limelight.test + 1;
-        drive.show = false;
-        limelight.show = false;
+        if (yellow)
+            limelight.setPipeline(limelight.yellowPipeline);
+
+
+        if (redAlliance) limelight.setPipeline(limelight.redPipeline);
+        else limelight.setPipeline(limelight.bluePipeline);
+
         FtcDashboard dashboard = FtcDashboard.getInstance();
         myOpmode.telemetry = new MultipleTelemetry(myOpmode.telemetry, dashboard.getTelemetry());
     }
@@ -56,9 +65,9 @@ public class AlignToNote extends CommandBase {
         drive.jog(y, x, rx);
 
         myOpmode.telemetry.addData("LLISValid", limelight.getLatestResult().isValid());
-        myOpmode.telemetry.addData("TX", limelight.getTX());
-        myOpmode.telemetry.addData("TY", limelight.getTY());
-        myOpmode.telemetry.addData("Area", limelight.getTA());
+        myOpmode.telemetry.addData("TX", round2dp(limelight.getTX(), 2));
+        myOpmode.telemetry.addData("TY", round2dp(limelight.getTY(), 2));
+        myOpmode.telemetry.addData("Area", round2dp(limelight.getTA(), 2));
         myOpmode.telemetry.addData("PIError", rx);
         myOpmode.telemetry.update();
 
