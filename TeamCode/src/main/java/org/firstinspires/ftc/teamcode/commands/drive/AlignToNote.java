@@ -76,7 +76,6 @@ public class AlignToNote extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         // drive.show = true;
-        limelight.show = true;
         drive.jog(0, 0, 0);
     }
 

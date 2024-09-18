@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 public class LimelightSubsystem extends SubsystemBase {
 
@@ -15,9 +17,10 @@ public class LimelightSubsystem extends SubsystemBase {
     public Telemetry telemetry;
     public boolean show;
 
-    public int redPipeline = 0;
-    public int bluePipeline = 1;
-    public int yellowPipeline = 2;
+    public int yellowPipeline = 0;
+    public int redPipeline = 1;
+    public int bluePipeline = 2;
+    public int aprilTagPipeline = 3;
     public int test;
 
     public LimelightSubsystem(CommandOpMode opMode) {
@@ -48,29 +51,39 @@ public class LimelightSubsystem extends SubsystemBase {
 
     }
 
+    public Pose2d convertPose3dTo2d(Pose3D pose3) {
+        return convertPose3dTo2d(pose3);
+    }
+    
+    public Pose2d getBotpose2d() {
+        return convertPose3dTo2d(getLatestResult().getBotpose_MT2());
+    }
+
+
     public void setPipeline(int number) {
         limelight.pipelineSwitch(number);
     }
 
     public void setYellowNotePipeline() {
-        setPipeline(0);
+        setPipeline(yellowPipeline);
     }
 
     public void setRedNotePipeline() {
-        setPipeline(1);
+        setPipeline(redPipeline);
     }
 
     public void setBlueNotePipeline() {
-        setPipeline(2);
+        setPipeline(bluePipeline);
     }
 
     public void setAprilTagPipeline() {
-        setPipeline(3);
+        setPipeline(aprilTagPipeline);
     }
 
     public LLResult getLatestResult() {
         return limelight.getLatestResult();
     }
+
 
     public double getTX() {
         return limelight.getLatestResult().getTx();
@@ -96,6 +109,12 @@ public class LimelightSubsystem extends SubsystemBase {
         return limelight.getLatestResult().getTargetingLatency();
     }
 
+    int getNumberTagsSeen() {
+        return getLatestResult().getBotposeTagCount();
+    }
+
+
+
 
     public void showTelemetry() {
         telemetry.addData("Limelight", show);
@@ -103,7 +122,7 @@ public class LimelightSubsystem extends SubsystemBase {
         telemetry.addData("DDD", test);
         telemetry.addData("Connected", limelight.isConnected());
         telemetry.addData("Running", limelight.isRunning());
-//        // telemetry.addData("Status", limelight.getStatus());
+        telemetry.addData("TagCount", getNumberTagsSeen());
         telemetry.addData("UpdateTime", limelight.getTimeSinceLastUpdate());
 //
 //

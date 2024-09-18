@@ -58,11 +58,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Drawing;
 import org.firstinspires.ftc.teamcode.Localizer;
-import org.firstinspires.ftc.teamcode.commands.drive.Utils.ActiveMotionValues;
 import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumLocalizerInputsMessage;
 import org.firstinspires.ftc.teamcode.messages.PoseMessage;
+import org.firstinspires.ftc.teamcode.utils.ActiveMotionValues;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -281,9 +281,9 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
         telemetry.addData("FrontRightPosn", round2dp(encoderTicksToInches(rightFront.getCurrentPosition()), 2));
         telemetry.addData("BackLeftPosn", round2dp(encoderTicksToInches(leftBack.getCurrentPosition()), 2));
         telemetry.addData("BackRightPosn", round2dp(encoderTicksToInches(rightBack.getCurrentPosition()), 2));
-        telemetry.addData("Robot X Posn", pose.position.x);
-        telemetry.addData("Robot Y Posn", pose.position.y);
-        telemetry.addData("Robot Heading", pose.position.angleCast());
+        telemetry.addData("Robot X Posn", round2dp(pose.position.x, 2));
+        telemetry.addData("Robot Y Posn", round2dp(pose.position.y, 2));
+        telemetry.addData("Robot Heading", round2dp(Math.toDegrees(pose.heading.toDouble()), 2));
 
         telemetry.addData("FrontLeftVel", leftFront.getVelocity());
 
@@ -310,7 +310,7 @@ public final class MecanumDriveSubsystem extends SubsystemBase {
         // drive model parameters
         public double inPerTick = .023;// theoretical = pi * 5.5 /751.8 = .023 test = 50/2000 = .025
         public double lateralInPerTick = inPerTick;// test
-        public double trackWidthTicks = 0;
+        public double trackWidthTicks = 38;//estimate theroetical 16.25 ^ .023 =.3735
 
         // feedforward parameters (in tick units)
         public double kS = 0;
